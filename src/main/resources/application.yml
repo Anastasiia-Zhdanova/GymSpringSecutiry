@@ -10,7 +10,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   sql:
     init.mode: always
-  
+
   # JPA/Hibernate settings
   jpa:
     show-sql: true
@@ -30,15 +30,21 @@ spring:
       session:
         timeout: 1800s # 30 minutes
 
-  # AOP settings (optional, but good for explicitness)
+  # AOP settings
   aop:
     proxy-target-class: true
 
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: "*" # Expose all endpoints (health, info, metrics, prometheus, etc.)
-    endpoint:
-      health:
-        show-details: always # Show details for health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # Expose all endpoints (health, info, metrics, prometheus, etc.)
+  endpoint:
+    health:
+      show-details: always # Show details for health checks
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 86400000 # 1 day token's live

@@ -1,16 +1,16 @@
 spring:
-  profiles: dev
   datasource:
-    url: jdbc:postgresql://dev-db-server:5432/gym_db_dev
-    username: dev_user
-    password: ${DEV_DB_PASSWORD} # Using environment variables for production-like environments
+    url: jdbc:postgresql://localhost:5432/gym_db_dev
+    username: anastasiia
+    password:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update # Update schema
+      ddl-auto: validate # first time ddl-auto: update, after ddl-auto: validate
   sql:
     init:
+      data-locations: classpath:data-dev.sql
       mode: always
 logging:
   level:
-    com.company.gym: INFO # Less verbose than local
+    com.company.gym: INFO

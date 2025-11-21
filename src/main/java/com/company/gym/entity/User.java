@@ -2,6 +2,7 @@ package com.company.gym.entity;
 
 import jakarta.persistence.*;
 
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -27,6 +28,12 @@ public class User {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
+    @Column(name = "failed_login_attempts")
+    private int failedLoginAttempts = 0;
+
+    @Column(name = "lock_time")
+    private Date lockTime;
+
     public User() {}
 
     public Long getId() { return id; }
@@ -41,6 +48,10 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+    public int getFailedLoginAttempts() { return failedLoginAttempts; }
+    public void setFailedLoginAttempts(int failedLoginAttempts) { this.failedLoginAttempts = failedLoginAttempts; }
+    public Date getLockTime() { return lockTime; }
+    public void setLockTime(Date lockTime) { this.lockTime = lockTime; }
 
     @Override
     public boolean equals(Object o) {

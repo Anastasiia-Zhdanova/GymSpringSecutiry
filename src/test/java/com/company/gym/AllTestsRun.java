@@ -17,6 +17,10 @@ import com.company.gym.exception.NotFoundExceptionTest;
 import com.company.gym.exception.ValidationExceptionTest;
 import com.company.gym.mapper.TraineeMapperTest;
 import com.company.gym.mapper.TrainerMapperTest;
+import com.company.gym.security.JwtService;
+import com.company.gym.security.JwtServiceTest;
+import com.company.gym.security.UserDetailsServiceImpl;
+import com.company.gym.security.UserDetailsServiceImplTest;
 import com.company.gym.service.*;
 import com.company.gym.util.*;
 import org.junit.platform.suite.api.SelectClasses;
@@ -61,9 +65,11 @@ import org.junit.platform.suite.api.Suite;
         TrainingTypeResponseTest.class,
         UserCredentialsResponseTest.class,
         WebSecurityConfigTest.class,
-        CustomUsernamePasswordAuthenticationFilterTest.class,
         LoggingAspectTest.class,
         RedisSessionHealthIndicatorTest.class,
+        JwtAuthenticationFilterTest.class,
+        JwtServiceTest.class,
+        UserDetailsServiceImplTest.class,
         TrainingTypeInitialLoadHealthIndicatorTest.class
 })
 public class AllTestsRun {

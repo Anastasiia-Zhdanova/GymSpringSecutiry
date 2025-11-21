@@ -1,15 +1,15 @@
 spring:
-  profiles: local
   datasource:
-    url: jdbc:h2:mem:gym_db_local
+    url: jdbc:h2:mem:gym_db_local;MODE=PostgreSQL
     username: sa
     password:
     driver-class-name: org.h2.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop # Easy schema creation and drop on every run
+      ddl-auto: create-drop # schema creation and drop on every run
   sql:
     init:
+      data-locations: classpath:data-local.sql
       mode: always
 logging:
   level:

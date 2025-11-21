@@ -6,6 +6,7 @@ import com.company.gym.dto.request.TraineeRegistrationRequest;
 import com.company.gym.dto.request.TrainerRegistrationRequest;
 import com.company.gym.dto.response.AuthResponse;
 import com.company.gym.exception.AuthenticationException;
+import com.company.gym.security.JwtService;
 import com.company.gym.service.AuthService;
 import com.company.gym.service.TraineeService;
 import com.company.gym.service.TrainerService;
@@ -20,7 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -30,16 +34,21 @@ public class AuthenticationController {
     private final AuthService authService;
     private final TraineeService traineeService;
     private final TrainerService trainerService;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
     public AuthenticationController(AuthService authService,
                                     TraineeService traineeService,
-                                    TrainerService trainerService) {
+                                    TrainerService trainerService,
+                                    JwtService jwtService,
+                                    UserDetailsService userDetailsService) {
         this.authService = authService;
         this.traineeService = traineeService;
         this.trainerService = trainerService;
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
     }
 
-    // №1 Trainee Registration - POST /api/v1/auth/trainee/register
     @PostMapping("/trainee/register")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "1. Trainee Registration", description = "Возвращает сгенерированные Username и Password.")
@@ -52,7 +61,6 @@ public class AuthenticationController {
         );
     }
 
-    // №2 Trainer Registration - POST /api/v1/auth/trainer/register
     @PostMapping("/trainer/register")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "2. Trainer Registration", description = "Возвращает сгенерированные Username и Password.")
@@ -64,22 +72,27 @@ public class AuthenticationController {
         );
     }
 
-    // №3 Login - POST /api/v1/auth/login
     @PostMapping("/login")
-    @Operation(summary = "3. Login", description = "Аутентификация через Spring Security Filter. Возвращает 200 OK при успехе.",
+    @Operation(summary = "3. Login", description = "Аутентификация и генерация JWT токена.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content =
             @Content(schema = @Schema(implementation = LoginRequest.class))))
-    public ResponseEntity<Void> login() {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest request) {
+        if (!authService.authenticateUser(request.getUsername(), request.getPassword())) {
+            throw new AuthenticationException("Invalid username or password");
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
+
+        String jwtToken = jwtService.generateToken(userDetails);
+
+        return ResponseEntity.ok(Map.of("token", jwtToken));
     }
 
-    // №4 Change Login (Password) - PUT /api/v1/auth/change-password
     @PutMapping("/change-password")
     @Operation(summary = "4. Change Login (Password)", description = "Требуется аутентификация. Idempotent.")
     public ResponseEntity<Void> changePassword(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody ChangePasswordRequest request,
-            HttpSession session) {
+            @Valid @RequestBody ChangePasswordRequest request) {
 
         if (userDetails == null || !userDetails.getUsername().equals(request.getUsername())) {
             throw new AuthenticationException("Forbidden. You can only change your own password.");
@@ -92,15 +105,14 @@ public class AuthenticationController {
         );
 
         SecurityContextHolder.clearContext();
-        session.invalidate();
 
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/logout")
-    @Operation(description = "Logout current user")
+    @Operation(description = "Logout current user (Client should remove JWT)")
     @ResponseStatus(HttpStatus.OK)
     public void logout() {
-
+        SecurityContextHolder.clearContext();
     }
 }

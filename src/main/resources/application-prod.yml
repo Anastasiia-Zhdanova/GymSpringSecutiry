@@ -1,23 +1,23 @@
 spring:
-  profiles: prod
-  # Database settings (PostgreSQL) for Production
   datasource:
-    url: jdbc:postgresql://prod-db-master:5432/gym_db_prod # Production server address
-    username: prod_user
-    password: ${PROD_DB_PASSWORD} # Password from environment variable
+    url: jdbc:postgresql://localhost:5432/gym_db_prod
+    username: anastasiia
+    password:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate # Only schema validation (ddl-auto: none or validate is mandatory for Prod)
+      ddl-auto: validate # first time ddl-auto: update, after ddl-auto: validate
   sql:
     init:
-      mode: never # Do not run data.sql automatically in Production
+      data-locations: classpath:data-prod.sql
+      mode: never
 
-  # Redis settings (could be a separate cluster)
   data:
     redis:
-      host: prod-redis-cluster
+      host: localhost
       port: 6379
+      session:
+        timeout: 1800s # 30 minutes
 
 logging:
   level:

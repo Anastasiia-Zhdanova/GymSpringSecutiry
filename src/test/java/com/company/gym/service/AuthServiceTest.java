@@ -236,4 +236,61 @@ public class AuthServiceTest {
         assertEquals("Incorrect old password for User: user", exception.getMessage());
         verify(userDAO, never()).update(any(User.class));
     }
+
+    @Test
+    void authenticateUser_IncrementsFailedAttempts_OnWrongPassword() {
+        User user = new User();
+        user.setUsername("user");
+        user.setPassword("hashed");
+        user.setIsActive(true);
+        user.setFailedLoginAttempts(0);
+
+        when(userDAO.findByUsername("user")).thenReturn(user);
+
+        passwordUtilMock.when(() -> PasswordUtil.checkPassword("wrong", "hashed")).thenReturn(false);
+
+        boolean result = authService.authenticateUser("user", "wrong");
+
+        assertFalse(result);
+        assertEquals(1, user.getFailedLoginAttempts());
+        verify(userDAO).update(user);
+    }
+
+    @Test
+    void authenticateUser_LocksUser_After3FailedAttempts() {
+        User user = new User();
+        user.setUsername("user");
+        user.setPassword("hashed");
+        user.setIsActive(true);
+        user.setFailedLoginAttempts(2);
+
+        when(userDAO.findByUsername("user")).thenReturn(user);
+        passwordUtilMock.when(() -> PasswordUtil.checkPassword("wrong", "hashed")).thenReturn(false);
+
+        boolean result = authService.authenticateUser("user", "wrong");
+
+        assertFalse(result);
+        assertEquals(3, user.getFailedLoginAttempts());
+        assertNotNull(user.getLockTime(), "User should be locked (lockTime set)");
+        verify(userDAO).update(user);
+    }
+
+    @Test
+    void authenticateUser_ResetsAttempts_OnSuccess() {
+        User user = new User();
+        user.setUsername("user");
+        user.setPassword("hashed");
+        user.setIsActive(true);
+        user.setFailedLoginAttempts(2);
+
+        when(userDAO.findByUsername("user")).thenReturn(user);
+        passwordUtilMock.when(() -> PasswordUtil.checkPassword("right", "hashed")).thenReturn(true);
+
+        boolean result = authService.authenticateUser("user", "right");
+
+        assertTrue(result);
+        assertEquals(0, user.getFailedLoginAttempts());
+        assertNull(user.getLockTime());
+        verify(userDAO).update(user);
+    }
 }
