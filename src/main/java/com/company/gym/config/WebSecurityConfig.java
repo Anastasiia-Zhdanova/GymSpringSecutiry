@@ -40,7 +40,7 @@ public class WebSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Requirement 7
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/trainer/register", "/api/v1/auth/trainee/register", "/api/v1/auth/login").permitAll() // Requirement 1
-                        .requestMatchers("/v2/api-docs", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/v2/api-docs", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
