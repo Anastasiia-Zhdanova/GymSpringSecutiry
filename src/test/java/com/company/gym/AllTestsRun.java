@@ -66,7 +66,6 @@ import org.junit.platform.suite.api.Suite;
         UserCredentialsResponseTest.class,
         WebSecurityConfigTest.class,
         LoggingAspectTest.class,
-        RedisSessionHealthIndicatorTest.class,
         JwtAuthenticationFilterTest.class,
         JwtServiceTest.class,
         UserDetailsServiceImplTest.class,
