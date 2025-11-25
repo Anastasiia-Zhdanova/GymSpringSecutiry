@@ -21,14 +21,6 @@ spring:
     hibernate:
       ddl-auto: update
     defer-datasource-initialization: true
-  
-  # Spring Session settings with Redis
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      session:
-        timeout: 1800s # 30 minutes
 
   # AOP settings
   aop:
